@@ -11,9 +11,9 @@ locals {
 
 ###  Just one, with a share ################
 module "vpc_cidr_lists" {
-  source = "../../modules/aws/vpc-prefix-list"
-  name = "private_subnets"
-  cidr_entries = [for x in local.vpc_prefix_lists["private"] : {name = "TF-private-subnet", cidr = x}]
+  source              = "git::git@github.com:johnsmclay/terraform-modules.git//modules/aws/vpc-prefix-list?ref=tags/0.0.1"
+  name                = "private_subnets"
+  cidr_entries        = [for x in local.vpc_prefix_lists["private"] : {name = "TF-private-subnet", cidr = x}]
   share_to_principals = local.share_principals
 }
 
@@ -35,12 +35,12 @@ resource "aws_ram_principal_association" "inter_account_share_invite" {
 }
 
 module "vpc_cidr_lists" {
-  source = "../../modules/aws/vpc-prefix-list"
-  for_each  = local.vpc_prefix_lists
-  name = "vpc_${each.key}_subnets"
-  cidr_entries = [for x in each.value : {name = "TF-${each.key}-subnet", cidr = x}]
+  source              = "git::git@github.com:johnsmclay/terraform-modules.git//modules/aws/vpc-prefix-list?ref=tags/0.0.1"
+  for_each            = local.vpc_prefix_lists
+  name                = "vpc_${each.key}_subnets"
+  cidr_entries        = [for x in each.value : {name = "TF-${each.key}-subnet", cidr = x}]
   share_to_principals = local.share_principals
-  existing_share_arn = aws_ram_resource_share.inter_account_share.arn
+  existing_share_arn  = aws_ram_resource_share.inter_account_share.arn
 }
 
 
